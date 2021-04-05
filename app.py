@@ -2,69 +2,61 @@ from flask import Flask, render_template, url_for, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
+# import Methods of ontology
+from Onto_methods import Methods
+
+
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
-db = SQLAlchemy(app)
 
-class Todo(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    content = db.Column(db.String(200), nullable=False)
-    date_created = db.Column(db.DateTime, default=datetime.utcnow)
+@app.route('/', methods=['GET', 'POST'])
+def Ontology():
 
-    def __repr__(self):
-        return '<Task %r>' % self.id
+	requet = ""
+	if request.method == 'POST':
+			requet = request.form['requet']
+	if requet == "":
+		requet = "Sports"
+	onto = Methods.main(requet)
 
+	Termes = onto[1]
+	Concepts = onto[0]
+	
 
-@app.route('/', methods=['POST', 'GET'])
-def index():
-    if request.method == 'POST':
-        task_content = request.form['content']
-        new_task = Todo(content=task_content) # create model
+	ontcon_term = []
+	for m in onto[0]:
+		ontcon_term.append(m)
+	for m in onto[1]:
+		ontcon_term.append(m)
+	
+	requet_after=  '+'.join(ontcon_term)
 
-        try:
-            db.session.add(new_task) # add model created to db
-            db.session.commit()
-            return redirect('/')
-        except:
-            return 'There was an issue adding your task'
+	
+	context = {
+		'concepts' : Concepts,
+		'termes'   : Termes,
+		'requet_befor_reformulation': requet,
+		'requet_after_reformulation': requet_after
+	}
 
-    else:
-        tasks = Todo.query.order_by(Todo.date_created).all() # get all contents from db order by date created
-        return render_template('index.html', tasks=tasks)
-
-
-
-
-@app.route('/delete/<int:id>')
-def delete(id):
-    task_to_delete = Todo.query.get_or_404(id)
-
-    try:
-        db.session.delete(task_to_delete)
-        db.session.commit()
-        return redirect('/')
-    except:
-        return 'There was a problem deleting that task'
+	return render_template('bas1.html', context=context)
 
 
+@app.route('/All_class/')
+def All_class():
 
-@app.route('/update/<int:id>', methods=['GET', 'POST'])
-def update(id):
-    task = Todo.query.get_or_404(id)
+	classes = Methods.All_class()
 
-    if request.method == 'POST':
-        task.content = request.form['content']
+	context = {
 
-        try:
-            db.session.commit()
-            return redirect('/')
-        except:
-            return 'There was an issue updating your task'
+		'all_class' : classes,
 
-    else:
-        return render_template('update.html', task=task)
+	}
 
+	return render_template('All_class.html', context=context)
+
+
+#========================== main Function ==============================#
 
 
 if __name__ == "__main__":
