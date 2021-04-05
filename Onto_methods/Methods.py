@@ -10,8 +10,8 @@ from nltk.stem import WordNetLemmatizer
 
 # Get Ontologie Travel
 def get_onto():
-    onto = get_ontology("https://protege.stanford.edu/ontologies/travel.owl")
-    onto.load()
+    onto = ""#get_ontology("https://protege.stanford.edu/ontologies/travel.owl")
+    #onto.load()
     return onto
 
 onto=get_onto()
