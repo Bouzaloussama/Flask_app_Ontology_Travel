@@ -171,11 +171,7 @@ def main(requet):
 
     #stop_words = set(stopwords.words('english'))
     concepts = ExtractConcept(requet)
-
-    for conc in concepts:
-        print("\t\t ==============================")
-        print("\t\t| "+str(conc)+" len : "+str(len(concepts)))
-        print("\t\t ==============================")
+        
 
     if len(concepts) == 1:
         terms = Allfils(concepts)
